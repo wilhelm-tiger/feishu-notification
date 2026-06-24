@@ -1,0 +1,94 @@
+name: 'Feishu PR Notification'
+description: >
+  Sends a Feishu (Lark) interactive card notification on PR open,
+  new commits pushed to a PR, or PR merged into main.
+author: 'Waybox-AI'
+
+branding:
+  icon: 'bell'
+  color: 'blue'
+
+inputs:
+  webhook-url:
+    description: 'Feishu incoming webhook URL (store as a repo secret)'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Send Feishu notification
+      shell: bash
+      env:
+        FEISHU_WEBHOOK_URL: ${{ inputs.webhook-url }}
+        PR_NUMBER:  ${{ github.event.pull_request.number }}
+        PR_TITLE:   ${{ github.event.pull_request.title }}
+        PR_URL:     ${{ github.event.pull_request.html_url }}
+        PR_AUTHOR:  ${{ github.event.pull_request.user.login }}
+        PR_BRANCH:  ${{ github.head_ref }}
+        PR_ACTION:  ${{ github.event.action }}
+        COMMIT_SHA: ${{ github.event.after }}
+        PR_MERGED:  ${{ github.event.pull_request.merged }}
+        PR_BASE:    ${{ github.event.pull_request.base.ref }}
+      run: |
+        if [ -z "$FEISHU_WEBHOOK_URL" ]; then
+          echo "FEISHU_WEBHOOK_URL not set — skipping notification"
+          exit 0
+        fi
+
+        if [ "$PR_ACTION" = "opened" ]; then
+          HEADER="🆕 新 PR 已创建"
+          TEMPLATE="blue"
+          DETAIL="PR 已开启,等待 Review。"
+        elif [ "$PR_ACTION" = "synchronize" ]; then
+          HEADER="📝 PR 有新提交"
+          TEMPLATE="orange"
+          SHORT_SHA="${COMMIT_SHA:0:7}"
+          DETAIL="新提交:\`${SHORT_SHA}\`"
+        elif [ "$PR_ACTION" = "closed" ] && [ "$PR_MERGED" = "true" ] && [ "$PR_BASE" = "main" ]; then
+          HEADER="✅ PR 已合并到 main"
+          TEMPLATE="green"
+          DETAIL="已由 **${PR_AUTHOR}** 合并。"
+        else
+          echo "PR closed without merge or not targeting main — skipping"
+          exit 0
+        fi
+
+        BODY=$(jq -n \
+          --arg header   "$HEADER" \
+          --arg template "$TEMPLATE" \
+          --arg pr_label "#${PR_NUMBER} ${PR_TITLE}" \
+          --arg pr_url   "$PR_URL" \
+          --arg author   "$PR_AUTHOR" \
+          --arg branch   "$PR_BRANCH" \
+          --arg detail   "$DETAIL" \
+          '{
+            msg_type: "interactive",
+            card: {
+              header: {
+                title: { tag: "plain_text", content: $header },
+                template: $template
+              },
+              elements: [
+                {
+                  tag: "div",
+                  text: {
+                    tag: "lark_md",
+                    content: ("**PR:** [\($pr_label)](\($pr_url))\n**作者:** \($author)\n**分支:** `\($branch)`\n\($detail)")
+                  }
+                },
+                {
+                  tag: "action",
+                  actions: [{
+                    tag: "button",
+                    text: { tag: "plain_text", content: "查看 PR" },
+                    url: $pr_url,
+                    type: "primary"
+                  }]
+                }
+              ]
+            }
+          }')
+
+        curl -sSf -X POST "$FEISHU_WEBHOOK_URL" \
+          -H "Content-Type: application/json" \
+          -d "$BODY"
