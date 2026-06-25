@@ -4,12 +4,10 @@
 
 **A GitHub Action that sends [Feishu (Lark)](https://www.feishu.cn) interactive card notifications for pull request events.**
 
-
-
 [![Auto Release](https://img.shields.io/github/actions/workflow/status/Waybox-AI/feishu-notification/release.yml?branch=main&style=for-the-badge&logo=github&logoColor=white&label=Auto%20Release)](https://github.com/Waybox-AI/feishu-notification/actions/workflows/release.yml)
-[![Latest Release](https://img.shields.io/github/v/release/Waybox-AI/feishu-notification?logo=github&color=blue)](https://github.com/Waybox-AI/feishu-notification/releases/latest)
-[![GitHub Marketplace](https://img.shields.io/badge/Marketplace-Feishu%20Notification-blue?logo=github)](https://github.com/marketplace/actions/feishu-pr-notification)
-[![License](https://img.shields.io/github/license/Waybox-AI/feishu-notification)](LICENSE)
+[![Latest Release](https://img.shields.io/github/v/release/Waybox-AI/feishu-notification?logo=github&color=blue&style=for-the-badge)](https://github.com/Waybox-AI/feishu-notification/releases/latest)
+[![GitHub Marketplace](https://img.shields.io/badge/Marketplace-Feishu%20Notification-blue?logo=github&style=for-the-badge)](https://github.com/marketplace/actions/feishu-pr-notification)
+[![License](https://img.shields.io/github/license/Waybox-AI/feishu-notification?&style=for-the-badge)](LICENSE)
 
 Built and maintained by [Waybox-AI](https://github.com/Waybox-AI) · Open for anyone to use.
 
