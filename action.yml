@@ -2,7 +2,7 @@ name: 'Feishu Notification'
 description: >
   Sends a Feishu (Lark) interactive card notification on PR open,
   new commits pushed to a PR, or PR merged into main.
-author: 'wilhelm-tiger'
+author: 'Waybox-AI'
 
 branding:
   icon: 'bell'
