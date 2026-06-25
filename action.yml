@@ -1,4 +1,4 @@
-name: 'Feishu PR Notification'
+name: 'Feishu Notification'
 description: >
   Sends a Feishu (Lark) interactive card notification on PR open,
   new commits pushed to a PR, or PR merged into main.
