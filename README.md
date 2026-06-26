@@ -22,7 +22,7 @@ Built and maintained by [Waybox-AI](https://github.com/Waybox-AI) · Open for an
 | Event               | Card colour | When it fires                         |
 |---------------------|-------------|---------------------------------------|
 | PR opened           | Blue        | A pull request is created             |
-| New commits pushed  | Orange      | Commits are pushed to an existing PR  |
+| New commits pushed  | Orange      | Commits are pushed to a non-draft PR  |
 | PR merged to `main` | Green       | A PR is merged into the `main` branch |
 
 PRs closed without merging, or merged into non-`main` branches, are silently skipped.
@@ -41,6 +41,10 @@ name: Feishu Notifications
 on:
   pull_request:
     types: [opened, synchronize, closed]
+
+concurrency:
+  group: feishu-notify-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   notify:

@@ -26,6 +26,7 @@ runs:
         PR_AUTHOR:  ${{ github.event.pull_request.user.login }}
         PR_BRANCH:  ${{ github.head_ref }}
         PR_ACTION:  ${{ github.event.action }}
+        PR_DRAFT:   ${{ github.event.pull_request.draft }}
         COMMIT_SHA: ${{ github.event.after }}
         PR_MERGED:  ${{ github.event.pull_request.merged }}
         PR_BASE:    ${{ github.event.pull_request.base.ref }}
@@ -40,6 +41,10 @@ runs:
           TEMPLATE="blue"
           DETAIL="PR 已开启,等待 Review。"
         elif [ "$PR_ACTION" = "synchronize" ]; then
+          if [ "$PR_DRAFT" = "true" ]; then
+            echo "Draft PR — skipping synchronize notification"
+            exit 0
+          fi
           HEADER="📝 PR 有新提交"
           TEMPLATE="orange"
           SHORT_SHA="${COMMIT_SHA:0:7}"

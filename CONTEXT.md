@@ -83,11 +83,21 @@ On every `pull_request` trigger the action inspects `github.event.action` and `g
 decide which notification (if any) to send:
 
 ```
-action = "opened"                                  → blue card  "新 PR 已创建"
-action = "synchronize"                             → orange card "PR 有新提交"
-action = "closed" AND merged = true AND base = main → green card  "PR 已合并到 main"
-anything else                                      → exit 0 (no notification)
+action = "opened"                                              → blue card  "新 PR 已创建"
+action = "synchronize" AND draft = false                       → orange card "PR 有新提交"
+action = "synchronize" AND draft = true                        → exit 0 (no notification)
+action = "closed" AND merged = true AND base = main            → green card  "PR 已合并到 main"
+anything else                                                  → exit 0 (no notification)
 ```
+
+The draft guard on `synchronize` prevents over-notification from intermediate commits. Developers push
+work-in-progress commits to a Draft PR freely; only when the PR is marked "Ready for Review" (making
+it non-draft) will subsequent pushes produce notifications.
+
+Callers should also enable workflow-level concurrency with `cancel-in-progress: true` scoped per PR
+number. This ensures that if multiple commits land in quick succession on a non-draft PR, only the
+notification triggered by the last push actually completes — earlier runs are cancelled before they
+reach the `curl` step.
 
 The `base = main` guard on the merge case is intentional: merges into feature branches or release branches do not
 trigger a notification because they are routine integration steps, not team-visible milestones.
