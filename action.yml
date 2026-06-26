@@ -37,6 +37,10 @@ runs:
         fi
 
         if [ "$PR_ACTION" = "opened" ]; then
+          if [ "$PR_DRAFT" = "true" ]; then
+            echo "Draft PR — skipping opened notification"
+            exit 0
+          fi
           HEADER="🆕 新 PR 已创建"
           TEMPLATE="blue"
           DETAIL="PR 已开启,等待 Review。"

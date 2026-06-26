@@ -83,14 +83,15 @@ On every `pull_request` trigger the action inspects `github.event.action` and `g
 decide which notification (if any) to send:
 
 ```
-action = "opened"                                              → blue card  "新 PR 已创建"
+action = "opened"    AND draft = false                         → blue card  "新 PR 已创建"
+action = "opened"    AND draft = true                          → exit 0 (no notification)
 action = "synchronize" AND draft = false                       → orange card "PR 有新提交"
 action = "synchronize" AND draft = true                        → exit 0 (no notification)
 action = "closed" AND merged = true AND base = main            → green card  "PR 已合并到 main"
 anything else                                                  → exit 0 (no notification)
 ```
 
-The draft guard on `synchronize` prevents over-notification from intermediate commits. Developers push
+Draft PRs are silently skipped on both `opened` and `synchronize`. Developers push
 work-in-progress commits to a Draft PR freely; only when the PR is marked "Ready for Review" (making
 it non-draft) will subsequent pushes produce notifications.
 
